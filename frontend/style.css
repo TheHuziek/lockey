@@ -1,0 +1,261 @@
+/* Estilos generales */
+body.Bienvenida {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+/* Imagen del logo */
+.Imagen1 img {
+    width: 550px;
+    margin-top: 20px;
+    transition: transform 0.10s ease;
+    cursor: pointer;
+}
+
+.Imagen1 img:hover {
+    transform: scale(1.1);
+}
+
+/* Título principal */
+.Texto h1 {
+    font-size: 2.5em;
+    margin: 20px 0;
+    color: #00c6ff;
+}
+
+/* Información */
+.Informacion {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 1.6;
+    font-size: 1.1em;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+/* Botón ENTER */
+.enter button {
+    margin-top: 30px;
+    padding: 12px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.enter button:hover {
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    transform: scale(1.05);
+}
+
+/* Botón inicio */
+.Inicio button {
+    margin-top: 30px;
+    padding: 12px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+
+
+
+body.sesion {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    border-radius: 15px;
+}
+
+
+
+
+/* Inputs dentro del formulario */
+.box input {
+    width: 40%;
+    padding: 12px;
+    margin: 10px auto;
+    display: block;
+    border: 1px solid #00c6ff;
+    border-radius: 12px;
+    background-color: #203a43;
+    color: #ffffff;
+    font-size: 1em;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-top: 100px;
+    
+}
+
+.box input::placeholder {
+    color: #00c6ff;
+    opacity: 0.8;
+}
+
+.box input:focus {
+    border-color: #0072ff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 198, 255, 0.6);
+    
+}
+
+/* Inputs dentro del formulario */
+.box1 input {
+    width: 40%;
+    padding: 12px;
+    margin: 10px auto;
+    display: block;
+    border: 1px solid #00c6ff;
+    border-radius: 12px;
+    background-color: #203a43;
+    color: #ffffff;
+    font-size: 1em;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+    
+}
+
+.box1 input::placeholder {
+    color: #00c6ff;
+    opacity: 0.8;
+}
+
+.box1 input:focus {
+    border-color: #0072ff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 198, 255, 0.6);
+    
+}
+
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background: #0f2027;
+  padding-top: 60px;
+  transition: 0.3s;
+  z-index: 1000;
+}
+
+.sidebar a {
+  display: block;
+  padding: 15px 20px;
+  color: #00c6ff;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  background: #203a43;
+  color: #ffffff;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+/* Botón menú */
+.menu-btn {
+  font-size: 2em;
+  cursor: pointer;
+  color: #00c6ff;
+  padding: 15px;
+}
+
+/* Contenido principal */
+.content {
+  margin-left: 20px;
+  padding: 20px;
+  color: #ffffff;
+}
+
+.content h1 {
+  color: #00c6ff;
+  margin-bottom: 20px;
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+table th, table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #00c6ff;
+}
+
+table th {
+  background: #203a43;
+  color: #00c6ff;
+}
+
+table td {
+  color: #ffffff;
+}
+
+/* Botón ENTER */
+.atrasdatos button {
+    margin-top: 90px;
+    padding: 12px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.atrasdatos button:hover {
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    transform: scale(1.05);
+}
+
+.edit button {
+    margin-top: 10px;
+    padding: 12px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.edit button:hover {
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    transform: scale(1.05);
+}
