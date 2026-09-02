@@ -8,15 +8,11 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: caballo_homosexual_de_las_montañas
       MARIADB_DATABASE: lockey
-    ports:
-      - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
   #imagen para el frontend
   frontend:
-    build: marcelo/.
-    ports:
-      - "3000:3000"
+    build: frontend/.
     volumes:
     - type: bind
       source: ./frontend
@@ -28,22 +24,16 @@ services:
   #imagen para el microservicio de autenticación
   auth:
     build: auth/.
-    ports:
-      - "5000:5000"
     depends_on:
       - mahi
   #imagen para el microservicio de CRUD
   crud:
     build: crud/.
-    ports:
-      - "6000:6000"
     depends_on:
       - mahi
   #imagen para el microservicio de Marcelo
   mahi:
     build: mahi/.
-    ports:
-      - "7000:7000"
     depends_on:
       - db
 volumes:
