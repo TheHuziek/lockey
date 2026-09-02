@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  #imagen para base de datos(mariadb)
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: lockey_app_mensual
+    volume:
+  marcelo:
+    build: marcelo/.
+volumes:
