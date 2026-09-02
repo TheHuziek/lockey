@@ -1,7 +1,7 @@
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
-#[derive(sqlx::FromRow, serde::Serialize)]
+#[derive(sqlx::FromRow, serde::Serialize, Debug)]
 pub struct VaultItem {
     pub id: Vec<u8>,             // BINARY(16)
     pub encrypted_data: String,  // TEXT
@@ -19,6 +19,11 @@ pub async fn get_user_items(pool: &MySqlPool, user_id: Uuid) -> Result<Vec<Vault
 
     Ok(items)
 }
-fn main() {
+#[tokio::main]
+async fn main() {
     println!("Hello, world!");
+    let pool = MySqlPool::connect("mysql://user:pass@host/database").await.unwrap();
+    let user_id = Uuid::new_v4();
+    let items=get_user_items(&pool, user_id).await.unwrap();
+    println!("{:#?}", items);
 }
