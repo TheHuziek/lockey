@@ -25,7 +25,7 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
     // 2. BUSCAR ARCHIVOS ESTÁTICOS REALES (.js, .css, .png, etc.)
     // -------------------------------------------------------------
     let requested_path = path.trim_start_matches('/');
-    let file_path = PathBuf::from("dist").join(requested_path);
+    let file_path = PathBuf::from("var/marlin/html").join(requested_path);
 
     if file_path.is_file() {
         if let Ok(contents) = read_file_to_bytes(&file_path).await {
@@ -37,16 +37,16 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
     // -------------------------------------------------------------
     // 3. FALLBACK DE LA SPA (Redirigir todo lo demás a index.html)
     // -------------------------------------------------------------
-    let index_path = PathBuf::from("dist/index.html");
+    let index_path = PathBuf::from("var/marlin/html/index.html");
     if let Ok(index_contents) = read_file_to_bytes(&index_path).await {
         return Ok(create_response(StatusCode::OK, "text/html", index_contents));
     }
 
-    // Si dist/index.html no existe
+    // Si var/marlin/html/index.html no existe
     Ok(create_response(
         StatusCode::INTERNAL_SERVER_ERROR,
         "text/plain",
-        Bytes::from("Error: dist/index.html no encontrado."),
+        Bytes::from("Error: var/marlin/html/index.html no encontrado."),
     ))
 }
 
