@@ -1,3 +1,8 @@
+
+// Incluir el mismo código autogenerado
+pub mod usuarios {
+    tonic::include_proto!("usuarios");
+}
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use hyper::body::Bytes;
@@ -9,7 +14,10 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
 use http_body_util::Full;
+use tonic::transport::Channel;
 
+use usuarios::usuario_service_client::UsuarioServiceClient;
+use usuarios::UsuarioRequest;
 async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, hyper::Error> {
     let path = req.uri().path();
     let method = req.method();
@@ -54,8 +62,8 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
 async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>> {
     match (method, path) {
         // GET /api/usuarios
-        (&Method::GET, "/api/usuarios") => {
-            let json_payload = r#"[{"id": 1, "nombre": "Alice"}, {"id": 2, "nombre": "Bob"}]"#;
+        (&Method::GET, "/api/usuarios/:id") => {
+            let json_payload = obtener_usuario_handler(Path(1)).await.into_inner().to_string();
             create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
         }
 
@@ -72,7 +80,28 @@ async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>>
         }
     }
 }
+async fn obtener_usuario_handler(Path(id): Path<i32>) -> Json<Value> {
+    // 1. Conectar al microservicio gRPC en el puerto interno
+    let mut client = match UsuarioServiceClient::connect("http://mahi:50051").await {
+        Ok(c) => c,
+        Err(_) => return Json(json!({"error": "No se pudo conectar al microservicio"})),
+    };
 
+    // 2. Hacer la petición gRPC
+    let request = tonic::Request::new(UsuarioRequest { id });
+
+    match client.obtener_usuario(request).await {
+        Ok(response) => {
+            let u = response.into_inner();
+            Json(json!({
+                "id": u.id,
+                "nombre": u.nombre,
+                "email": u.email
+            }))
+        }
+        Err(status) => Json(json!({"error": status.message()})),
+    }
+}
 // Funciones auxiliares
 async fn read_file_to_bytes(path: &PathBuf) -> Result<Bytes, std::io::Error> {
     let mut file = File::open(path).await?;

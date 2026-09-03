@@ -33,7 +33,7 @@ services:
   #     - mahi
   #imagen para el microservicio de Marcelo
   mahi:
-    build: mahi/.
+    build: database_admin/.
     depends_on:
       - db
 volumes:
