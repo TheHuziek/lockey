@@ -1,5 +1,5 @@
 {
-  description = "Entorno de desarrollo para Rust puro";
+  description = "Entorno de desarrollo para lockey";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -17,7 +17,12 @@
         rustfmt
         rustPackages.clippy
         rust-analyzer
+        protobuf
       ];
+
+      # Variables de entorno para que los scripts build.rs (prost-build, tonic, etc.) encuentren protoc
+      PROTOC = "${pkgs.protobuf}/bin/protoc";
+      PROTOC_INCLUDE = "${pkgs.protobuf}/include";
     };
   };
 }
