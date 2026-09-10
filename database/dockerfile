@@ -1,0 +1,10 @@
+FROM mariadb:latest
+
+# Configurar variables de entorno predeterminadas
+ENV MARIADB_ROOT_PASSWORD=root_password_segura
+ENV MARIADB_DATABASE=lockeydb
+ENV MARIADB_USER=ricardo
+ENV MARIADB_PASSWORD=caballo_homosexual_de_las_montanas
+
+# Copiar el script SQL de inicialización
+COPY init.sql /docker-entrypoint-initdb.d/

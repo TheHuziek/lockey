@@ -37,7 +37,7 @@ impl UsuarioService for MiUsuarioService {
         request: Request<UsuarioRequest>,
     ) -> Result<Response<UsuarioResponse>, Status> {
         let req = request.into_inner();
-        let user = get_user(&MySqlPool::connect("mysql://user:pass@host/database").await.unwrap(), req.id).await.unwrap();
+        let user = get_user(&MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@mariadb/lockeydb").await.unwrap(), req.id).await.unwrap();
         // Lógica de negocio (ej. consultar base de datos)
         let respuesta = UsuarioResponse {
             id: user.id,
@@ -53,7 +53,7 @@ impl UsuarioService for MiUsuarioService {
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
-    let pool = MySqlPool::connect("mysql://user:pass@host/database").await.unwrap();
+    let pool = MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@mariadb/lockeydb").await.unwrap();
     let user_id = Uuid::new_v4();
     let items=get_user_items(&pool, user_id).await.unwrap();
     println!("{:#?}", items);
