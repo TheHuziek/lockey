@@ -3,6 +3,7 @@
 pub mod usuarios {
     tonic::include_proto!("usuarios");
 }
+use std::path::Path;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use hyper::body::Bytes;
@@ -14,7 +15,8 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
 use http_body_util::Full;
-use tonic::transport::Channel;
+use serde_json::{json, Value};
+//use tonic::transport::Channel;
 
 use usuarios::usuario_service_client::UsuarioServiceClient;
 use usuarios::UsuarioRequest;
@@ -63,7 +65,15 @@ async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>>
     match (method, path) {
         // GET /api/usuarios
         (&Method::GET, "/api/usuarios/:id") => {
-            let json_payload = obtener_usuario_handler(Path(1)).await.into_inner().to_string();
+            let id_str = path.trim_start_matches("/api/usuarios/");
+            let id: i32 = match id_str.parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    let error_payload = r#"{"error": "ID de usuario inválido"}"#;
+                    return create_response(StatusCode::BAD_REQUEST, "application/json", Bytes::from(error_payload));
+                }
+            };
+            let json_payload = obtener_usuario_handler(&id).await.to_string();
             create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
         }
 
@@ -80,26 +90,25 @@ async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>>
         }
     }
 }
-async fn obtener_usuario_handler(Path(id): Path<i32>) -> Json<Value> {
+async fn obtener_usuario_handler(id: &i32) -> Value {
     // 1. Conectar al microservicio gRPC en el puerto interno
     let mut client = match UsuarioServiceClient::connect("http://mahi:50051").await {
         Ok(c) => c,
-        Err(_) => return Json(json!({"error": "No se pudo conectar al microservicio"})),
+        Err(_) => return json!({"error": "No se pudo conectar al microservicio"}),
     };
 
     // 2. Hacer la petición gRPC
-    let request = tonic::Request::new(UsuarioRequest { id });
-
+    let request = tonic::Request::new(UsuarioRequest { id: *id });
     match client.obtener_usuario(request).await {
         Ok(response) => {
             let u = response.into_inner();
-            Json(json!({
+            json!({
                 "id": u.id,
                 "nombre": u.nombre,
                 "email": u.email
-            }))
+            })
         }
-        Err(status) => Json(json!({"error": status.message()})),
+        Err(status) => json!({"error": status.message()}),
     }
 }
 // Funciones auxiliares
