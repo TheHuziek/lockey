@@ -15,4 +15,5 @@ message UsuarioResponse {
   int32 id = 1;
   string nombre = 2;
   string email = 3;
+  string creado_en = 4;
 }

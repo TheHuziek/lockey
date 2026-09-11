@@ -13,19 +13,19 @@ use usuarios::{UsuarioRequest, UsuarioResponse};
 pub struct VaultItem {
     pub id: i32,
     pub nombre: String,
-    pub correo: String,
-    pub dia_de_creacion: String,
+    pub email: String,
+    pub creado_en: String,
 }
 
 pub async fn get_user(pool: &MySqlPool, user_id: i32) -> Result<VaultItem, sqlx::Error> {
     let items = sqlx::query_as::<_, VaultItem>(
-        "SELECT id, nombre, correo, dia_de_creacion FROM usuarios WHERE id = ?"
+        "SELECT id, nombre, email, DATE_FORMAT(creado_en, '%Y-%m-%d %H:%M:%S') AS creado_en FROM usuarios WHERE id = ?"
     )
     .bind(user_id)
     .fetch_all(pool)
     .await?;
 
-    Ok(items)
+    Ok(items.into_iter().next().unwrap())
 }
 #[derive(Debug, Default)]
 pub struct MiUsuarioService;
@@ -37,12 +37,13 @@ impl UsuarioService for MiUsuarioService {
         request: Request<UsuarioRequest>,
     ) -> Result<Response<UsuarioResponse>, Status> {
         let req = request.into_inner();
-        let user = get_user(&MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@mariadb/lockeydb").await.unwrap(), req.id).await.unwrap();
+        let user = get_user(&MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@localhost/lockeydb").await.unwrap(), req.id).await.unwrap();
         // Lógica de negocio (ej. consultar base de datos)
         let respuesta = UsuarioResponse {
             id: user.id,
             nombre: user.nombre,
-            email: user.correo,
+            email: user.email,
+            creado_en: user.creado_en,
         };
         
         Ok(Response::new(respuesta))
@@ -53,8 +54,19 @@ impl UsuarioService for MiUsuarioService {
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
-    let pool = MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@mariadb/lockeydb").await.unwrap();
+    let pool = MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@localhost/lockeydb").await.unwrap();
     let user_id = Uuid::new_v4();
-    let items=get_user_items(&pool, user_id).await.unwrap();
-    println!("{:#?}", items);
+    // let items=get_user_items(&pool, user_id).await.unwrap();
+    let addr = "[::1]:50051".parse().unwrap();
+    
+    // Instancia de tu servicio (ej. MyService)
+    // let service = MyService::default();
+
+    Server::builder()
+        .add_service(UsuarioServiceServer::new(MiUsuarioService::default()))
+        .serve(addr)
+        .await.unwrap();
+
+
+    // println!("{:#?}", items);
 }
