@@ -62,23 +62,25 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
 
 // Sub-manejador exclusivo para endpoints de la API
 async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>> {
-    match (method, path) {
+    let path_vec: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+    match (method, path_vec.as_slice()) {
         // GET /api/usuarios
-        (&Method::GET, "/api/usuarios/:id") => {
-            let id_str = path.trim_start_matches("/api/usuarios/");
-            let id: i32 = match id_str.parse() {
-                Ok(num) => num,
-                Err(_) => {
-                    let error_payload = r#"{"error": "ID de usuario inválido"}"#;
-                    return create_response(StatusCode::BAD_REQUEST, "application/json", Bytes::from(error_payload));
+        (&Method::GET, ["api", "usuarios", id_raw]) => {
+            // En lugar de expect(), usamos match/if let seguro
+            match id_raw.parse::<i32>() {
+                Ok(id) => {
+                    let usuario_json = obtener_usuario_handler(&id).await.to_string();
+                    create_response(StatusCode::OK, "application/json", Bytes::from(usuario_json))
                 }
-            };
-            let json_payload = obtener_usuario_handler(&id).await.to_string();
-            create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
+                Err(_) => {
+                    let error_payload = r#"{"error": "El ID de usuario debe ser un número entero válido"}"#;
+                    create_response(StatusCode::BAD_REQUEST, "application/json", Bytes::from(error_payload))
+                }
+            }
         }
-
+    
         // GET /api/status
-        (&Method::GET, "/api/status") => {
+        (&Method::GET, &["api", "status"]) => {
             let json_payload = r#"{"status": "ok", "version": "1.0"}"#;
             create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
         }
@@ -92,7 +94,7 @@ async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>>
 }
 async fn obtener_usuario_handler(id: &i32) -> Value {
     // 1. Conectar al microservicio gRPC en el puerto interno
-    let mut client = match UsuarioServiceClient::connect("http://mahi:50051").await {
+    let mut client = match UsuarioServiceClient::connect("http://localhost:50051").await {
         Ok(c) => c,
         Err(_) => return json!({"error": "No se pudo conectar al microservicio"}),
     };
