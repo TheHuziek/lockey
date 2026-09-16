@@ -20,17 +20,27 @@ use serde_json::{json, Value};
 
 use usuarios::usuario_service_client::UsuarioServiceClient;
 use usuarios::UsuarioRequest;
+use http_body_util::BodyExt;
+use serde::Deserialize;
+use hyper::body::Incoming;
+
+#[derive(Deserialize, Debug)]
+struct CrearUsuarioRequest {
+    pub nombre: String,
+    pub email: String,
+}
 async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, hyper::Error> {
-    let path = req.uri().path();
-    let method = req.method();
+// 1. Descomponer la petición en sus partes y su cuerpo
+    let (parts, body) = req.into_parts();
+    
+    // 2. Extraer el path desde 'parts' (sin prestamos pendientes de 'req')
+    let path = parts.uri.path();
+    let method = &parts.method;
 
-    // -------------------------------------------------------------
-    // 1. EVALUAR RUTAS DE API (/api/...)
-    // -------------------------------------------------------------
     if path.starts_with("/api/") {
-        return Ok(handle_api_routes(method, path).await);
+        // 3. Ahora puedes pasar 'body' libremente
+        return Ok(handle_api_routes(method, path, body).await);
     }
-
     // -------------------------------------------------------------
     // 2. BUSCAR ARCHIVOS ESTÁTICOS REALES (.js, .css, .png, etc.)
     // -------------------------------------------------------------
@@ -61,7 +71,7 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
 }
 
 // Sub-manejador exclusivo para endpoints de la API
-async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>> {
+async fn handle_api_routes(method: &Method, path: &str, req: hyper::body::Incoming) -> Response<Full<Bytes>> {
     let path_vec: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
     match (method, path_vec.as_slice()) {
         // GET /api/usuarios
@@ -84,13 +94,55 @@ async fn handle_api_routes(method: &Method, path: &str) -> Response<Full<Bytes>>
             let json_payload = r#"{"status": "ok", "version": "1.0"}"#;
             create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
         }
+        (&Method::POST, &["api", "usuarios"]) => {
+            // 1. Extraer y leer todos los bytes del cuerpo de la petición
+            let body_bytes = match leer_cuerpo(req).await {
+                Ok(bytes) => bytes,
+                Err(err) => {
+                    return create_response(
+                        StatusCode::BAD_REQUEST,
+                        "application/json",
+                        Bytes::from(format!(r#"{{"error": "{}"}}"#, err)),
+                    );
+                }
+            };
 
+            // 2. Parsear/Deserializar el JSON recibido a la estructura Rust
+            let nuevo_usuario: CrearUsuarioRequest = match serde_json::from_slice(&body_bytes) {
+                Ok(datos) => datos,
+                Err(_) => {
+                    return create_response(
+                        StatusCode::BAD_REQUEST,
+                        "application/json",
+                        Bytes::from(r#"{"error": "Formato JSON inválido o faltan campos obligatorios"}"#),
+                    );
+                }
+            };
+
+            // 3. (Aquí iría tu lógica de negocio, ej. guardar en Base de Datos o llamar gRPC)
+            println!("Creando usuario: {:?}", nuevo_usuario);
+
+            // 4. Responder con código 201 Created y los datos creados
+            let respuesta_json = format!(
+                r#"{{"mensaje": "Usuario creado con éxito", "nombre": "{}"}}"#,
+                nuevo_usuario.nombre
+            );
+
+            create_response(StatusCode::CREATED, "application/json", Bytes::from(respuesta_json))
+        }
         // Ruta de API no encontrada (Devuelve 404 JSON, NO el index.html)
         _ => {
             let error_payload = r#"{"error": "Endpoint de API no encontrado"}"#;
             create_response(StatusCode::NOT_FOUND, "application/json", Bytes::from(error_payload))
         }
     }
+}
+// Función para leer todo el cuerpo entrante como Bytes
+async fn leer_cuerpo(body: Incoming) -> Result<hyper::body::Bytes, String> {
+    body.collect()
+        .await
+        .map(|collected| collected.to_bytes())
+        .map_err(|e| format!("Error al leer el cuerpo de la petición: {}", e))
 }
 async fn obtener_usuario_handler(id: &i32) -> Value {
     // 1. Conectar al microservicio gRPC en el puerto interno

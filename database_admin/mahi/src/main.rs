@@ -37,7 +37,7 @@ impl UsuarioService for MiUsuarioService {
         request: Request<UsuarioRequest>,
     ) -> Result<Response<UsuarioResponse>, Status> {
         let req = request.into_inner();
-        let user = get_user(&MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@localhost/lockeydb").await.unwrap(), req.id).await.unwrap();
+        let user = get_user(&MySqlPool::connect("mysql://ricardo:caballo_homosexual_de_las_montanas@localhost/lockeydb").await.unwrap(), req.id).await?;
         // Lógica de negocio (ej. consultar base de datos)
         let respuesta = UsuarioResponse {
             id: user.id,
