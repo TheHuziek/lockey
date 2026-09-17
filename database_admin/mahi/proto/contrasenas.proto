@@ -22,12 +22,18 @@ message CreateResponse {
     int32 status_code=2;
 }
 message ReadRequest{
-    string hash_usuario=1;
+    string hash_user=1;
 }
 message ReadResponse{
-    string lista_pass=1;
+    repeated ItemPass lista_pass=1;
     optional int32 err_code=2;
     optional string mensaje_error=3;
+}
+message ItemPass{
+    string plataforma=1;
+    string user_name=2;
+    string passwd=3;
+    string hash_user=4;
 }
 message DelRequest{
     string plataforma=1;
@@ -36,4 +42,14 @@ message DelRequest{
 message DelResponse{
     string mensaje=1;
     
+}
+message UpdateRequest{
+    string hash_user=1;
+    string plataforma=2;
+    string user_name=3;
+    string passwd=4;
+}
+message UpdateResponse{
+    int32 status_code=1;
+    string mensaje=2;
 }
