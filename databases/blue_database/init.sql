@@ -4,7 +4,7 @@
 USE lockeydb;
 
 -- Crear la tabla
-CREATE TABLE IF NOT EXISTS usuarios (
+CREATE TABLE IF NOT EXISTS passwords (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
     plataforma VARCHAR(100) NOT NULL,
