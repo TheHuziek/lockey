@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package pass_data;
+
+// Mensaje principal de PassData
+message PassData {
+  int32 id = 1;
+  string nombre = 2;
+  string email = 3;
+  string creado_en = 4;
+}
+
+// Peticiones y Respuestas CRUD
+message CrearPassDataRequest {
+  string nombre = 1;
+  string email = 2;
+}
+
+message ObtenerPassDataRequest {
+  int32 id = 1;
+}
+
+message ActualizarPassDataRequest {
+  int32 id = 1;
+  string nombre = 2;
+  string email = 3;
+}
+
+message EliminarPassDataRequest {
+  int32 id = 1;
+}
+
+message EliminarPassDataResponse {
+  bool exito = 1;
+}
+
+message ListaPassDataResponse {
+  repeated PassData pass_data = 1;
+}
+
+message Empty {}
+
+// Servicio gRPC CRUD
+service PassDataService {
+  rpc CrearPassData (CrearPassDataRequest) returns (PassData);
+  rpc ObtenerPassData (ObtenerPassDataRequest) returns (PassData);
+  rpc ListarPassData (Empty) returns (ListaPassDataResponse);
+  rpc ActualizarPassData (ActualizarPassDataRequest) returns (PassData);
+  rpc EliminarPassData (EliminarPassDataRequest) returns (EliminarPassDataResponse);
+}
