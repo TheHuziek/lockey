@@ -17,7 +17,7 @@ pub struct VaultItem {
     pub creado_en: String,
 }
 
-pub async fn get_user(pool: &MySqlPool, user_id: i32) -> Result<VaultItem, sqlx::Error> {
+pub async fn get_passwords(pool: &MySqlPool, user_id: i32) -> Result<VaultItem, sqlx::Error> {
     let items = sqlx::query_as::<_, VaultItem>(
         "SELECT id, nombre, email, DATE_FORMAT(creado_en, '%Y-%m-%d %H:%M:%S') AS creado_en FROM usuarios WHERE id = ?"
     )

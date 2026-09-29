@@ -2,3 +2,4 @@
 /web_server/marlin/Cargo.lock
 /database_admin/mahi/target
 /database_admin/mahi/Cargo.lock
+crud/crud_src/__pycache__/lockey_crud.cpython-314.pyc

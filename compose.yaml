@@ -3,7 +3,9 @@ version: '3.8'
 services:
   #imagen para base de datos(mariadb)
   db:
-    image: mariadb:latest
+    build:
+      context: contextPath
+      dockerfile: Dockerfile
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: caballo_homosexual_de_las_montañas
@@ -18,20 +20,19 @@ services:
       source: ./frontend
       target: /var/marlin/html
       read_only: true
-  #   depends_on:
-  #     - auth
-  #     - crud
-  # #imagen para el microservicio de autenticación
-  # auth:
-  #   build: auth/.
-  #   depends_on:
-  #     - mahi
-  # #imagen para el microservicio de CRUD
-  # crud:
-  #   build: crud/.
-  #   depends_on:
-  #     - mahi
-  #imagen para el microservicio de Marcelo
+    depends_on:
+      - auth
+      - crud
+  #imagen para el microservicio de autenticación
+  auth:
+    build: auth/.
+    depends_on:
+      - mahi
+  #imagen para el microservicio de CRUD
+  crud:
+    build: crud/.
+    depends_on:
+      - mahi
   mahi:
     build: database_admin/.
     depends_on:

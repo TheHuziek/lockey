@@ -94,6 +94,11 @@ async fn handle_api_routes(method: &Method, path: &str, req: hyper::body::Incomi
             let json_payload = r#"{"status": "ok", "version": "1.0"}"#;
             create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
         }
+        (&Method::GET, &["api", "passwords"]) => {
+            // Aquí iría la lógica para obtener los passwords, por ejemplo:
+            let json_payload = r#"{"passwords": ["pass1", "pass2", "pass3"]}"#;
+            create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
+        }
         (&Method::POST, &["api", "usuarios"]) => {
             // 1. Extraer y leer todos los bytes del cuerpo de la petición
             let body_bytes = match leer_cuerpo(req).await {
