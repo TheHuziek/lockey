@@ -45,7 +45,7 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
     // 2. BUSCAR ARCHIVOS ESTÁTICOS REALES (.js, .css, .png, etc.)
     // -------------------------------------------------------------
     let requested_path = path.trim_start_matches('/');
-    let file_path = PathBuf::from("var/marlin/html").join(requested_path);
+    let file_path = PathBuf::from("frontend/").join(requested_path);
 
     if file_path.is_file() {
         if let Ok(contents) = read_file_to_bytes(&file_path).await {
@@ -57,7 +57,7 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
     // -------------------------------------------------------------
     // 3. FALLBACK DE LA SPA (Redirigir todo lo demás a index.html)
     // -------------------------------------------------------------
-    let index_path = PathBuf::from("var/marlin/html/index.html");
+    let index_path = PathBuf::from("frontend/index.html");
     if let Ok(index_contents) = read_file_to_bytes(&index_path).await {
         return Ok(create_response(StatusCode::OK, "text/html", index_contents));
     }
@@ -188,7 +188,7 @@ fn create_response(status: StatusCode, content_type: &str, body: Bytes) -> Respo
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 80));
     let listener = TcpListener::bind(addr).await?;
     println!("Servidor SPA + API corriendo en http://{}", addr);
 
