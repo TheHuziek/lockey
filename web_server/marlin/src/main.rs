@@ -29,6 +29,10 @@ struct CrearUsuarioRequest {
     pub nombre: String,
     pub email: String,
 }
+#[derive(Deserialize, Debug)]
+struct PasswordRequest {
+    pub jwt: String,
+}
 async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, hyper::Error> {
 // 1. Descomponer la petición en sus partes y su cuerpo
     let (parts, body) = req.into_parts();
@@ -74,21 +78,39 @@ async fn handle_request(req: Request<hyper::body::Incoming>) -> Result<Response<
 async fn handle_api_routes(method: &Method, path: &str, req: hyper::body::Incoming) -> Response<Full<Bytes>> {
     let path_vec: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
     match (method, path_vec.as_slice()) {
-        // GET /api/usuarios
-        (&Method::GET, ["api", "usuarios", id_raw]) => {
-            // En lugar de expect(), usamos match/if let seguro
-            match id_raw.parse::<i32>() {
-                Ok(id) => {
-                    let usuario_json = obtener_usuario_handler(&id).await.to_string();
-                    create_response(StatusCode::OK, "application/json", Bytes::from(usuario_json))
+        // POST /api/login
+        (&Method::POST, &["api", "login"]) => {
+            // 1. Extraer y leer todos los bytes del cuerpo de la petición
+            let body_bytes = match leer_cuerpo(req).await {
+                Ok(bytes) => bytes,
+                Err(err) => {
+                    return create_response(
+                        StatusCode::BAD_REQUEST,
+                        "application/json",
+                        Bytes::from(format!(r#"{{"error": "{}"}}"#, err)),
+                    );
                 }
+            };
+
+            // 2. Parsear/Deserializar el JSON recibido a la estructura Rust
+            let login_request: PasswordRequest = match serde_json::from_slice(&body_bytes) {
+                Ok(datos) => datos,
                 Err(_) => {
-                    let error_payload = r#"{"error": "El ID de usuario debe ser un número entero válido"}"#;
-                    create_response(StatusCode::BAD_REQUEST, "application/json", Bytes::from(error_payload))
+                    return create_response(
+                        StatusCode::BAD_REQUEST,
+                        "application/json",
+                        Bytes::from(r#"{"error": "Formato JSON inválido o faltan campos obligatorios"}"#),
+                    );
                 }
-            }
+            };
+
+            // 3. (Aquí iría tu lógica de negocio, ej. validar JWT o llamar gRPC)
+            println!("Login request recibido: {:?}", login_request);
+
+            // 4. Responder con código 200 OK y un mensaje de éxito
+            let respuesta_json = r#"{"mensaje": "Login exitoso"}"#;
+            create_response(StatusCode::OK, "application/json", Bytes::from(respuesta_json))
         }
-    
         // GET /api/status
         (&Method::GET, &["api", "status"]) => {
             let json_payload = r#"{"status": "ok", "version": "1.0"}"#;
@@ -99,7 +121,7 @@ async fn handle_api_routes(method: &Method, path: &str, req: hyper::body::Incomi
             let json_payload = r#"{"passwords": ["pass1", "pass2", "pass3"]}"#;
             create_response(StatusCode::OK, "application/json", Bytes::from(json_payload))
         }
-        (&Method::POST, &["api", "usuarios"]) => {
+        (&Method::POST, &["api", "create_usuario"]) => {
             // 1. Extraer y leer todos los bytes del cuerpo de la petición
             let body_bytes = match leer_cuerpo(req).await {
                 Ok(bytes) => bytes,
@@ -149,7 +171,7 @@ async fn leer_cuerpo(body: Incoming) -> Result<hyper::body::Bytes, String> {
         .map(|collected| collected.to_bytes())
         .map_err(|e| format!("Error al leer el cuerpo de la petición: {}", e))
 }
-async fn obtener_usuario_handler(id: &i32) -> Value {
+async fn login_user(id: &i32) -> Value {
     // 1. Conectar al microservicio gRPC en el puerto interno
     let mut client = match UsuarioServiceClient::connect("http://localhost:50051").await {
         Ok(c) => c,
