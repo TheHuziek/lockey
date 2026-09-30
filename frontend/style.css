@@ -259,3 +259,59 @@ table td {
     background: linear-gradient(90deg, #0072ff, #00c6ff);
     transform: scale(1.05);
 }
+
+.box2 input {
+    width: 40%;
+    padding: 12px;
+    margin: 10px auto;
+    display: block;
+    border: 1px solid #00c6ff;
+    border-radius: 12px;
+    background-color: #203a43;
+    color: #ffffff;
+    font-size: 1em;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+    
+}
+
+.box2 input::placeholder {
+    color: #00c6ff;
+    opacity: 0.8;
+}
+
+.box2 input:focus {
+    border-color: #0072ff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 198, 255, 0.6);
+    
+}
+
+.box3 input {
+    width: 40%;
+    padding: 12px;
+    margin: 10px auto;
+    display: block;
+    border: 1px solid #00c6ff;
+    border-radius: 12px;
+    background-color: #203a43;
+    color: #ffffff;
+    font-size: 1em;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+    
+}
+
+.box3 input::placeholder {
+    color: #00c6ff;
+    opacity: 0.8;
+}
+
+.box3 input:focus {
+    border-color: #0072ff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 198, 255, 0.6);
+    
+}
